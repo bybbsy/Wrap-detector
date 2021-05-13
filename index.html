@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+	html,body {
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	body {
+		font-size: 18px;
+		line-height: 1.6;
+	}
+	section {
+		display: block;
+	}
+	.container {
+		max-width: 1200px;
+		padding: 75px 20px;
+		margin: 0 auto;
+		display: flex;
+		min-height: 400px;
+	}
+	.one .container {
+		justify-content: flex-end;
+	}
+	.two {
+		background-color: #ccc;
+	}
+	nav ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.menu-item {
+		position: relative;
+		display: inline-block;
+	}
+	.menu-item, .sub-menu {
+		flex-direction: column;
+	}
+
+	.wrapped {
+		display: none;
+	}
+	.menu-item a {
+		padding: 20px;
+		line-height: 1;
+		align-items: center;
+		display: flex;
+		white-space: nowrap;
+	}
+	.sub-menu {
+		display: flex;
+		position: absolute;
+		top: 100%;
+		padding: 0;
+		white-space: nowrap;
+		transition-timing-function: ease-in-out;
+		transition-property: visibility,opacity;
+		visibility: hidden;
+		opacity: 0;
+	}
+	.menu-item:hover > .sub-menu {
+		visibility: visible;
+		opacity: 1;
+	}
+	.menu-item:hover a {
+		color: #FFF;
+		background-color: #676767;
+	}
+	nav .sub-menu .sub-menu {
+		left: 100%;
+		top: 0;
+	}
+	nav .sub-menu.left_direction{
+		left: auto!important;
+		right: 0;
+	}
+	nav .sub-menu .sub-menu.left_direction {
+		left: auto!important;
+		right: 100%;
+	}
+	.menu-item-has-children > a::after {
+		width: 0.35em;
+		height: 0.35em;
+		margin-left: 0.5em;
+		border-right: 0.1em solid;
+		border-top: 0.1em solid;
+		transform: rotate(135deg);
+		content: "";
+	}
+	</style>
+</head>
+<body>
+<section class="one">
+	<div class="container">
+		<nav class="menu-test-container">
+			<ul id="menu-test" class="menu">
+				<li class="menu-item">
+					<a href="#">Menu Item 1</a>
+				</li>
+				<li class="menu-item menu-item-has-children">
+					<a href="#">Menu Item 2</a>
+					<ul class="sub-menu">
+						<li class="menu-item"><a href="#">Sublevel Menu Item 1</a></li>
+						<li class="menu-item"><a href="#">Sublevel Menu Item 2</a></li>
+						<li class="menu-item menu-item-has-children">
+							<a href="#">Sublevel Menu Item 3</a>
+							<ul class="sub-menu">
+								<li class="menu-item"><a href="#">Subleve2 Menu Item 1</a></li>
+								<li class="menu-item"><a href="#">Subleve2 Menu Item 2</a></li>
+								<li class="menu-item"><a href="#">Subleve2 Menu Item 3</a></li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li class="menu-item"><a href="#">Menu Item 3</a></li>
+				<li class="menu-item"><a href="#">Menu Item 4</a></li>
+				<li class="menu-item"><a href="#">Menu Item 5</a></li>
+				<li class="menu-item"><a href="#">Menu Item 6</a></li>
+				<li class="menu-item"><a href="#">Menu Item 7</a></li>
+				<li class="menu-item menu-item-has-children">
+					<a href="#">Menu Item 8</a>
+					<ul class="sub-menu">
+						<li class="menu-item"><a href="#">Sublevel Menu Item 1</a></li>
+						<li class="menu-item"><a href="#">Sublevel Menu Item 2</a></li>
+						<li class="menu-item menu-item-has-children">
+							<a href="#">Sublevel Menu Item 3</a>
+							<ul class="sub-menu">
+								<li class="menu-item"><a href="#">Subleve2 Menu Item 1</a></li>
+								<li class="menu-item"><a href="#">Subleve2 Menu Item 2</a></li>
+								<li class="menu-item"><a href="#">Subleve2 Menu Item 3</a></li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</section>
+<section class="two"></section>
+<script>
+    function process_menu_direction(menu, level) {
+        Array.from(menu.querySelectorAll(':scope > li.menu-item')).forEach(function(item) {
+            Array.from(item.querySelectorAll(':scope > ul.sub-menu')).forEach(function(sub_menu) {
+                if(level == 1) {
+                    var position_left = sub_menu.parentElement.getBoundingClientRect().left + sub_menu.clientWidth;
+                    var position_right = position_left;
+                } else {
+                    var position_left = sub_menu.getBoundingClientRect().left + sub_menu.clientWidth;
+                    var position_right = sub_menu.parentElement.getBoundingClientRect().right + sub_menu.clientWidth;
+                }
+                if(position_left + 20 > document.documentElement.clientWidth) {
+                    sub_menu.classList.remove('right_direction');
+                    sub_menu.classList.add('left_direction');
+                } else if(position_right + 20 < document.documentElement.clientWidth) {
+                    sub_menu.classList.remove('left_direction');
+                    sub_menu.classList.add('right_direction');
+                } else if(!sub_menu.classList.contains("left_direction") && !sub_menu.classList.contains("right_direction")) {
+                    sub_menu.classList.add('right_direction');
+                }
+                process_menu_direction(sub_menu, level + 1);
+            });
+        });
+    }
+	
+    window.addEventListener('resize', event => {
+        process_menu_direction(document.querySelector('ul#menu-test'), 2);
+    }, false);
+    process_menu_direction(document.querySelector('ul#menu-test'), 1);
+
+</script>
+<script src="./app.js"></script>
+</body>
